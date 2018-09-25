@@ -1,17 +1,15 @@
-from pprint import pprint
-
-import requests
-# from json import json
-
-api = "https://www.vegvesen.no/nvdb/api/v2/"
 
 
-# https://www.vegvesen.no/nvdb/api/v2/vegobjekter.json
-def get_json(url, parameters, timeout):
-    r = requests.get(url, params=parameters, timeout=timeout)
-    r.raise_for_status()
-    return r.json()
+from requests import get
+
+api_base_url = "https://www.vegvesen.no/nvdb/api/v2/"
 
 
-road_objects_json = get_json(api + 'vegobjekter.json', {}, 5)
-pprint(road_objects_json)
+def get_json(base_url, endpoint):
+    url = f"{base_url}{endpoint}.json"
+    return get(url).json()
+
+
+if __name__ == '__main__':
+    data = get_json(api_base_url, "vegobjekter")
+    print(data)
