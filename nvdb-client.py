@@ -1,4 +1,4 @@
-from json import load
+
 
 from requests import get
 
