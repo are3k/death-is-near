@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block header %}
+  {% include 'header.html' %}
+{% endblock %}
+{% block content %}
+<h1>SSB cloud platform</h1>
+<p>dette skal bare sørge for et bygg uten tag...</p>
+<table>
+	{% for item in data %}
+	<tr>
+		{% for element in item %}
+		<td>{{element}}</td>
+		{% endfor %}
+	</tr>
+	{% endfor %}
+</table>
+{% endblock %}
+{% block footer %}
+  {% include 'footer.html' %}
+{% endblock %}

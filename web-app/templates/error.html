@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Error - {% endblock %}
+{% block header %}
+  {% include 'header.html' %}
+{% endblock %}
+{% block content %}
+<h1>{{ msg }}</h1>
+<h2 class="ui icon header red">
+  <i class="settings icon"></i>
+  <div class="content">
+    {{ errorTxt }}
+  </div>
+</h2>
+<p></p>
+{% endblock %}
+{% block footer %}
+  {% include 'footer.html' %}
+{% endblock %}
