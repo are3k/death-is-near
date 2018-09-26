@@ -11,7 +11,7 @@ default_numrows = 10000
 
 def get_json(url):
     """Function to fetch API-data based on given URL. Returns dict or list"""
-    #headers = {'X-Client': 'SSB Hackaton', 'X-Kontaktperson': 'egk@ssb.no'}
+    # headers = {'X-Client': 'SSB Hackaton', 'X-Kontaktperson': 'egk@ssb.no'}
     print(url)
     return get(url).json()
 
@@ -19,8 +19,19 @@ def get_json(url):
 
 
 if __name__ == '__main__':
-    data = get_json(api_base_url + "vegobjekter/532?inkluder=lokasjon&egenskap=(4566=5493 OR 4566=5494 OR 4566=5492)&antall=" + str(default_numrows))
-    #pprint(data)
+    europavegId = '5492'
+    riksvegId = '5493'
+    fylkesvegId = '5494'
+
+    data = get_json(api_base_url + "vegobjekter/532?"
+                                   "inkluder=lokasjon"
+                                   "&egenskap=("
+                                   "{veiKategoriId}={riksveg} "
+                                   "OR {veiKategoriId}={fylkesveg} "
+                                   "OR {veiKategoriId}={europaveg})"
+                    .format(veiKategoriId='4566', riksveg=riksvegId, fylkesveg=fylkesvegId, europaveg=europavegId) +
+                    "&antall=" + str(default_numrows))
+    # pprint(data)
     while True:
         for vegref in data['objekter']:
             print(vegref['lokasjon']['vegreferanser'][0]['kortform'])
