@@ -59,8 +59,8 @@ def RF_reg(X_train, X_test, y_train, y_test):
 if __name__ == '__main__':
     data_532 = pd.read_csv('C:/Users/LES/PycharmProjects/Ny_filtype/532-vegref.csv',
                        sep=';', index_col='vegreferanse')
-    data_532['var1'] = np.random.randint(2, size=len(data_532.index))
-    data_532['var2'] = np.random.randint(2, size=len(data_532.index))
+    data_532['var1'] = np.random.randint(2, size=len(data_532.index)).astype('float64')
+    data_532['var2'] = np.random.randint(2, size=len(data_532.index)).astype('float64')
     data_532 = data_532.iloc[:,-2:]
     data_532['ulykke'] = np.random.randint(30, size=len(data_532.index)).astype('float64')
     X_train, X_test, y_train, y_test = split(data_532)
