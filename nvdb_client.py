@@ -52,7 +52,10 @@ def match_vei_referanser(data, vei_ref_dict):
                     vei_referanse_til_objektet = fartsdemper['lokasjon']['vegreferanser'][0]['kortform']
                     vei_referanse_til_objektet_uten_meter_suffix = VEI_REF_MAL.match(vei_referanse_til_objektet).group(1)
                     if vei_referanse_til_objektet_uten_meter_suffix in vei_ref_dict:
-                        vei_ref_dict[vei_referanse_til_objektet_uten_meter_suffix] = 1
+                        if vei_ref_dict[vei_referanse_til_objektet_uten_meter_suffix] is None:
+                            vei_ref_dict[vei_referanse_til_objektet_uten_meter_suffix] = 1
+                        else:
+                            vei_ref_dict[vei_referanse_til_objektet_uten_meter_suffix] += 1
                     else:
                         print('vei referanse {} fra fartsdemper {} finnes ikke i vei referanse lista'
                               .format(vei_referanse_til_objektet_uten_meter_suffix,
