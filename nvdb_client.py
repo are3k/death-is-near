@@ -23,6 +23,7 @@ def create_dataframe(data_dict):
 
 
 def create_vegref(fylke, kommune, kategori, status, nummer, hp):
+    """Creates a modified vegreferanse kortnavn"""
     if fylke < 10:
         fylke = f"0{fylke}"
     if kommune < 10:
@@ -31,8 +32,10 @@ def create_vegref(fylke, kommune, kategori, status, nummer, hp):
     return vegref
 
 
-if __name__ == '__main__':
-    data = get_json(api_base_url + "vegobjekter/532?inkluder=lokasjon&egenskap=(4566=5493 OR 4566=5494 OR 4566=5492)&antall=" + str(default_numrows))
+def get_vegrefs():
+    data = get_json(
+        api_base_url + "vegobjekter/532?inkluder=lokasjon&egenskap=(4566=5493 OR 4566=5494 OR 4566=5492)&antall=" + str(
+            default_numrows))
     # pprint(data)
     vegrefs = []
     while True:
@@ -45,28 +48,52 @@ if __name__ == '__main__':
             nummer = vegref['lokasjon']['vegreferanser'][0]['nummer']
             hp = vegref['lokasjon']['vegreferanser'][0]['hp']
             vegref_kort = create_vegref(fylke, kommune, kategori, status, nummer, hp)
+
             if vegref_kort not in vegrefs:
                 vegrefs.append(vegref_kort)
+
         if data['metadata']['returnert'] == default_numrows:
-            print('ny side' + " etter " + str(data['metadata']['returnert']) + " treff")
+            # print('ny side' + " etter " + str(data['metadata']['returnert']) + " treff")
             data = get_json(data['metadata']['neste']['href'])
         else:
-            print("det var " + str(data['metadata']['returnert']) + " treff på siste side")
-            print(len(data['objekter']))
+            # print("det var " + str(data['metadata']['returnert']) + " treff på siste side")
+            # print(len(data['objekter']))
             break
-    print(len(vegrefs))
-    fotobokser = [0] * len(vegrefs)
+    return vegrefs
 
+
+def get_fotobokser():
     fotoboks_data = get_json(api_base_url + "vegobjekter/775?inkluder=lokasjon&antall=" + str(default_numrows))
     print("Fotobokser")
+    fotobokser = []
     while True:
         for fotoboks in fotoboks_data["objekter"]:
-            # print(fotoboks['lokasjon']['vegreferanser'][0]['kortform'])
-            fylke = fotoboks['lokasjon']['vegreferanser'][0]['fylke']
-            kommune = fotoboks['lokasjon']['vegreferanser'][0]['kommune']
-            kategori = fotoboks['lokasjon']['vegreferanser'][0]['kategori']
-            status = fotoboks['lokasjon']['vegreferanser'][0]['status']
-            nummer = fotoboks['lokasjon']['vegreferanser'][0]['nummer']
-            hp = fotoboks['lokasjon']['vegreferanser'][0]['hp']
-            fotoboks_kort = create_vegref(fylke, kommune, kategori, status, nummer, hp)
-            print(vegrefs[vegrefs.index(fotoboks_kort)])
+            if "vegreferanser" in fotoboks['lokasjon']:
+                # print(fotoboks['lokasjon']['vegreferanser'][0]['kortform'])
+                fylke = fotoboks['lokasjon']['vegreferanser'][0]['fylke']
+                kommune = fotoboks['lokasjon']['vegreferanser'][0]['kommune']
+                kategori = fotoboks['lokasjon']['vegreferanser'][0]['kategori']
+                status = fotoboks['lokasjon']['vegreferanser'][0]['status']
+                nummer = fotoboks['lokasjon']['vegreferanser'][0]['nummer']
+                hp = fotoboks['lokasjon']['vegreferanser'][0]['hp']
+                fotoboks_kort = create_vegref(fylke, kommune, kategori, status, nummer, hp)
+                fotobokser.append(fotoboks_kort)
+
+        if fotoboks_data['metadata']['returnert'] == default_numrows:
+            # print('ny side' + " etter " + str(data['metadata']['returnert']) + " treff")
+            fotoboks_data = get_json(fotoboks_data['metadata']['neste']['href'])
+        else:
+            # print("det var " + str(data['metadata']['returnert']) + " treff på siste side")
+            # print(len(fotoboks_data['objekter']))
+            break
+    return fotobokser
+
+
+if __name__ == '__main__':
+    panda_dict = {}
+    # vegrefs = get_vegrefs()
+    # panda_dict["Vegreferanser"] = vegrefs
+    fotobokser = [0] * 18549  # len(vegrefs)
+
+    fotoboks_list = get_fotobokser()
+    print(len(fotoboks_list))
