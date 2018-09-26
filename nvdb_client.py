@@ -100,6 +100,10 @@ if __name__ == '__main__':
                                                  "inkluder=lokasjon"
                                   "&antall=" + str(default_numrows))
 
-    match_vei_referanser(farts_demper_ider, veg_dict)
-    print("Antall vei referanser: " + str(len(veg_dict)))
-    print("Antall vei referanser som har fartsdemper: " + str(sum(veg_dict[x] is not None for x in veg_dict)))
+    veg_dict_copy = veg_dict.copy()
+
+    match_vei_referanser(farts_demper_ider, veg_dict_copy)
+
+    data_frame = pd.DataFrame.from_dict({'fartsdempere': veg_dict_copy})
+    print(data_frame)
+    print(data_frame.count())
