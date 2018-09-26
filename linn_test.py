@@ -16,12 +16,15 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import GridSearchCV
+import matplotlib.pyplot as plt
 
 
 # Splitte data
 def split(df, test_size=0.25, rstate=42):
-    """Split in to X and y, and
-    train and test"""
+    """
+    Split in to X and y, and
+    train and test
+    """
     X = df.iloc[:, :-1].values
     y = df.iloc[:, -1].values
     X_train, X_test, y_train, y_test = train_test_split(X, y,
@@ -30,6 +33,13 @@ def split(df, test_size=0.25, rstate=42):
 
 
 def RF_reg(X_train, X_test, y_train, y_test):
+    """
+    :param X_train: Features for training data
+    :param X_test: Features for test data
+    :param y_train: Respons for train data
+    :param y_test: Respons for test data
+    :return:trainscore, testscore, list of predictions, classifier
+    """
     pipe_forest = make_pipeline(StandardScaler(), RandomForestRegressor())
     n_estimators = np.arange(5, 200, 10)
     max_features = ['auto', 'sqrt']
@@ -53,7 +63,22 @@ def RF_reg(X_train, X_test, y_train, y_test):
     pred = clf.predict(X_test)
     testscore = clf.score(X_test, y_test)
     print(gs.best_params_)
-    return trainscore, testscore, list(pred)
+    return trainscore, testscore, list(pred), clf
+
+def lin_regplot(X, y, model):
+    plt.scatter(X[:, 0], y, c='lightblue', label='observasjoner')
+    plt.plot(X[:, 0], model.predict(X), color='red', linewidth=2, label='modell')
+    plt.legend()
+    #plt.legend()
+    plt.xlabel('var1')
+    plt.ylabel('ulykker')
+
+    plt.show()
+    return
+
+
+
+
 
 
 if __name__ == '__main__':
@@ -64,4 +89,6 @@ if __name__ == '__main__':
     data_532 = data_532.iloc[:,-2:]
     data_532['ulykke'] = np.random.randint(30, size=len(data_532.index)).astype('float64')
     X_train, X_test, y_train, y_test = split(data_532)
-    trainscore, testscore, pred = RF_reg(X_train, X_test, y_train, y_test)
+    trainscore, testscore, pred, clf = RF_reg(X_train, X_test, y_train, y_test)
+
+    lin_regplot(X_train, y_train, clf)
