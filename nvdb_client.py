@@ -75,12 +75,7 @@ def les_vei_referanser_fra_fil(vei_dict):
             vei_dict[line_without_newline] = None
 
 
-if __name__ == '__main__':
-    europavegId = '5492'
-    riksvegId = '5493'
-    fylkesvegId = '5494'
-
-    vei_referanser_file = Path("vei_referanser.txt")
+def initialisere_vei_referanser(vei_referanser_file):
     veg_dict = dict()
 
     if vei_referanser_file.exists() and os.path.getsize(vei_referanser_file) > 0:
@@ -92,9 +87,20 @@ if __name__ == '__main__':
                                                      "{veiKategoriId}={riksveg} "
                                                      "OR {veiKategoriId}={fylkesveg} "
                                                      "OR {veiKategoriId}={europaveg})"
-                                      .format(veiKategoriId='4566', riksveg=riksvegId, fylkesveg=fylkesvegId, europaveg=europavegId) +
-                        "&antall=" + str(default_numrows))
+                                      .format(veiKategoriId='4566', riksveg=riksvegId, fylkesveg=fylkesvegId,
+                                              europaveg=europavegId) +
+                                      "&antall=" + str(default_numrows))
         veg_dict = get_vei_referanser(vei_referanse_ider, vei_referanser_file)
+
+    return veg_dict
+
+if __name__ == '__main__':
+    europavegId = '5492'
+    riksvegId = '5493'
+    fylkesvegId = '5494'
+
+    vei_referanser_file = Path("vei_referanser.txt")
+    veg_dict = initialisere_vei_referanser(vei_referanser_file)
 
     farts_demper_ider = get_json(api_base_url + "vegobjekter/103?"
                                                  "inkluder=lokasjon"
