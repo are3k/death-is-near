@@ -63,7 +63,7 @@ def get_vegrefs():
 
 
 def get_fotobokser():
-    fotoboks_data = get_json(api_base_url + "vegobjekter/775?inkluder=lokasjon&antall=" + str(default_numrows))
+    fotoboks_data = get_json(api_base_url + "vegobjekter/775?inkluder=lokasjon&egenskap=(4566=5493 OR 4566=5494 OR 4566=5492)&antall=" + str(default_numrows))
     print("Fotobokser")
     fotobokser = []
     while True:
@@ -91,9 +91,14 @@ def get_fotobokser():
 
 if __name__ == '__main__':
     panda_dict = {}
-    # vegrefs = get_vegrefs()
-    # panda_dict["Vegreferanser"] = vegrefs
-    fotobokser = [0] * 18549  # len(vegrefs)
+    vegrefs = get_vegrefs()
+    panda_dict["Vegreferanser"] = vegrefs
+    fotobokser = [0] * len(vegrefs)
 
     fotoboks_list = get_fotobokser()
-    print(len(fotoboks_list))
+
+    for fotoboks in fotoboks_list:
+        index = vegrefs.index(fotoboks)
+        fotobokser[index] += 1
+
+    print(fotobokser)
