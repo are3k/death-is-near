@@ -15,9 +15,9 @@ default_numrows = 10000
 
 def get_json(url):
     """Function to fetch API-data based on given URL. Returns dict or list"""
-    # headers = {'X-Client': 'SSB Hackaton', 'X-Kontaktperson': 'egk@ssb.no'}
+    headers = {'X-Client': 'SSB Hackaton', 'X-Kontaktperson': 'egk@ssb.no'}
     print(url)
-    return get(url).json()
+    return get(url, headers=headers).json()
 
 
 def get_vei_referanser(data, vei_referanser_file):
@@ -90,6 +90,11 @@ def kalkuler_verdi(jsonObjekt, vei_ref_teller, vei_ref_til_objektet_uten_meter_s
         vei_bredde = get_egenskap(jsonObjekt['egenskaper'], '5555')
         vei_ref_teller[vei_ref_til_objektet_uten_meter_suffix] += 1
         return vei_bredde
+    elif str(jsonObjekt['metadata']['type']['id']) == fartsgrenser_id:
+        fartsgrense = get_egenskap(jsonObjekt['egenskaper'], '2021')
+        if fartsgrense != 0:
+            vei_ref_teller[vei_ref_til_objektet_uten_meter_suffix] += 1
+        return fartsgrense
     else:
         return 0
 
@@ -182,6 +187,7 @@ if __name__ == '__main__':
     vegbredde_id = '583'
     svingerestriksjon_id = '573'
     vilt_fare_id = '291'
+    fartsgrenser_id = '105'
     trafikk_ulykke_id = '570'
 
     vei_referanser_file = Path("vei_referanser.txt")
@@ -196,6 +202,7 @@ if __name__ == '__main__':
     # data_frame_vegbredde = get_data_frame('vegbredde', veg_dict.copy(), vegbredde_id, False)
     data_frame_svingerestriksjon = get_data_frame('svingerestriksjon', veg_dict.copy(), svingerestriksjon_id, False)
     data_frame_vilt_fare = get_data_frame('vilt_fare', veg_dict.copy(), vilt_fare_id, False)
+    data_frame_fartsgrense = get_data_frame('fartsgrense', veg_dict.copy(), fartsgrenser_id, False)
     data_frame_trafikk_ulykke = get_data_frame('trafikk_ulykke', veg_dict.copy(), trafikk_ulykke_id, True)
 
     resultat = data_frame_farts_demper
@@ -207,6 +214,7 @@ if __name__ == '__main__':
     # resultat = resultat.join(data_frame_vegbredde)
     resultat = resultat.join(data_frame_svingerestriksjon)
     resultat = resultat.join(data_frame_vilt_fare)
+    resultat = resultat.join(data_frame_fartsgrense)
     resultat = resultat.join(data_frame_trafikk_ulykke)
 
     print(resultat)
