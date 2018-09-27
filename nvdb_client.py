@@ -1,9 +1,13 @@
-
+import re
+import os
+from pathlib import Path
 from pprint import pprint
 
 import numpy as np
 import pandas as pd
 from requests import get
+
+VEI_REF_MAL = re.compile(r'(.+) m.*')
 
 api_base_url = "https://www.vegvesen.no/nvdb/api/v2/"
 default_numrows = 10000
@@ -16,89 +20,99 @@ def get_json(url):
     return get(url).json()
 
 
-def create_dataframe(data_dict):
-    """Creates a Pandas dataframe from a dict"""
-    data_frame = pd.DataFrame(data=data_dict)
-    return data_frame
+def get_vei_referanser(data, vei_referanser_file):
+    vei_dict = dict()
+
+    with open(vei_referanser_file, 'w') as f:
+        while True:
+            for vegref in data['objekter']:
+                kortform = vegref['lokasjon']['vegreferanser'][0]['kortform']
+                kortform_uten_meter_suffix = VEI_REF_MAL.match(kortform).group(1)
+                if kortform_uten_meter_suffix not in vei_dict:
+                    print(kortform_uten_meter_suffix)
+                    vei_dict[kortform_uten_meter_suffix] = None
+                    f.write(kortform_uten_meter_suffix + "\n")
+            if data['metadata']['returnert'] == default_numrows:
+                print('ny side' + " etter " + str(data['metadata']['returnert']) + " treff")
+                data = get_json(data['metadata']['neste']['href'])
+            else:
+                print("det var " + str(data['metadata']['returnert']) + " treff på siste side")
+                print(len(data['objekter']))
+                break
+
+    return vei_dict
 
 
-def create_vegref(fylke, kommune, kategori, status, nummer, hp):
-    """Creates a modified vegreferanse kortnavn"""
-    if fylke < 10:
-        fylke = f"0{fylke}"
-    if kommune < 10:
-        kommune = f"0{kommune}"
-    vegref = f"{fylke}{kommune} {kategori}{status.lower()}{nummer} hp{hp}"
-    return vegref
-
-
-def get_vegrefs():
-    data = get_json(
-        api_base_url + "vegobjekter/532?inkluder=lokasjon&egenskap=(4566=5493 OR 4566=5494 OR 4566=5492)&antall=" + str(
-            default_numrows))
-    # pprint(data)
-    vegrefs = []
+def match_vei_referanser(data, vei_ref_dict):
     while True:
-        for vegref in data['objekter']:
-            # print(vegref['lokasjon']['vegreferanser'][0]['kortform'])
-            fylke = vegref['lokasjon']['vegreferanser'][0]['fylke']
-            kommune = vegref['lokasjon']['vegreferanser'][0]['kommune']
-            kategori = vegref['lokasjon']['vegreferanser'][0]['kategori']
-            status = vegref['lokasjon']['vegreferanser'][0]['status']
-            nummer = vegref['lokasjon']['vegreferanser'][0]['nummer']
-            hp = vegref['lokasjon']['vegreferanser'][0]['hp']
-            vegref_kort = create_vegref(fylke, kommune, kategori, status, nummer, hp)
-
-            if vegref_kort not in vegrefs:
-                vegrefs.append(vegref_kort)
-
+        for fartsdemper in data['objekter']:
+            if 'vegreferanser' in fartsdemper['lokasjon']:
+                # ta bare de fartsdempere på ikke-kommunale veier
+                if fartsdemper['lokasjon']['vegreferanser'][0]['kommune'] == 0:
+                    vei_referanse_til_objektet = fartsdemper['lokasjon']['vegreferanser'][0]['kortform']
+                    vei_referanse_til_objektet_uten_meter_suffix = VEI_REF_MAL.match(vei_referanse_til_objektet).group(1)
+                    if vei_referanse_til_objektet_uten_meter_suffix in vei_ref_dict:
+                        if vei_ref_dict[vei_referanse_til_objektet_uten_meter_suffix] is None:
+                            vei_ref_dict[vei_referanse_til_objektet_uten_meter_suffix] = 1
+                        else:
+                            vei_ref_dict[vei_referanse_til_objektet_uten_meter_suffix] += 1
+                    else:
+                        print('vei referanse {} fra fartsdemper {} finnes ikke i vei referanse lista'
+                              .format(vei_referanse_til_objektet_uten_meter_suffix,
+                                      fartsdemper['id']))
+            else:
+                print('fartsdemper id {} har ikke vei referanse'.format(fartsdemper['id']))
         if data['metadata']['returnert'] == default_numrows:
             # print('ny side' + " etter " + str(data['metadata']['returnert']) + " treff")
             data = get_json(data['metadata']['neste']['href'])
         else:
-            # print("det var " + str(data['metadata']['returnert']) + " treff på siste side")
-            # print(len(data['objekter']))
+            print("det var " + str(data['metadata']['returnert']) + " treff på siste side")
+            print(len(data['objekter']))
             break
-    return vegrefs
 
 
-def get_fotobokser():
-    fotoboks_data = get_json(api_base_url + "vegobjekter/775?inkluder=lokasjon&egenskap=(4566=5493 OR 4566=5494 OR 4566=5492)&antall=" + str(default_numrows))
-    print("Fotobokser")
-    fotobokser = []
-    while True:
-        for fotoboks in fotoboks_data["objekter"]:
-            if "vegreferanser" in fotoboks['lokasjon']:
-                # print(fotoboks['lokasjon']['vegreferanser'][0]['kortform'])
-                fylke = fotoboks['lokasjon']['vegreferanser'][0]['fylke']
-                kommune = fotoboks['lokasjon']['vegreferanser'][0]['kommune']
-                kategori = fotoboks['lokasjon']['vegreferanser'][0]['kategori']
-                status = fotoboks['lokasjon']['vegreferanser'][0]['status']
-                nummer = fotoboks['lokasjon']['vegreferanser'][0]['nummer']
-                hp = fotoboks['lokasjon']['vegreferanser'][0]['hp']
-                fotoboks_kort = create_vegref(fylke, kommune, kategori, status, nummer, hp)
-                fotobokser.append(fotoboks_kort)
+def les_vei_referanser_fra_fil(vei_dict):
+    with open('vei_referanser.txt', 'r') as f:
+        for line in f:
+            line_without_newline = line.replace("\n", "")
+            vei_dict[line_without_newline] = None
 
-        if fotoboks_data['metadata']['returnert'] == default_numrows:
-            # print('ny side' + " etter " + str(data['metadata']['returnert']) + " treff")
-            fotoboks_data = get_json(fotoboks_data['metadata']['neste']['href'])
-        else:
-            # print("det var " + str(data['metadata']['returnert']) + " treff på siste side")
-            # print(len(fotoboks_data['objekter']))
-            break
-    return fotobokser
 
+def initialisere_vei_referanser(vei_referanser_file):
+    veg_dict = dict()
+
+    if vei_referanser_file.exists() and os.path.getsize(vei_referanser_file) > 0:
+        les_vei_referanser_fra_fil(veg_dict)
+    else:
+        vei_referanse_ider = get_json(api_base_url + "vegobjekter/532?"
+                                                     "inkluder=lokasjon"
+                                                     "&egenskap=("
+                                                     "{veiKategoriId}={riksveg} "
+                                                     "OR {veiKategoriId}={fylkesveg} "
+                                                     "OR {veiKategoriId}={europaveg})"
+                                      .format(veiKategoriId='4566', riksveg=riksvegId, fylkesveg=fylkesvegId,
+                                              europaveg=europavegId) +
+                                      "&antall=" + str(default_numrows))
+        veg_dict = get_vei_referanser(vei_referanse_ider, vei_referanser_file)
+
+    return veg_dict
 
 if __name__ == '__main__':
-    panda_dict = {}
-    vegrefs = get_vegrefs()
-    panda_dict["Vegreferanser"] = vegrefs
-    fotobokser = [0] * len(vegrefs)
+    europavegId = '5492'
+    riksvegId = '5493'
+    fylkesvegId = '5494'
 
-    fotoboks_list = get_fotobokser()
+    vei_referanser_file = Path("vei_referanser.txt")
+    veg_dict = initialisere_vei_referanser(vei_referanser_file)
 
-    for fotoboks in fotoboks_list:
-        index = vegrefs.index(fotoboks)
-        fotobokser[index] += 1
+    farts_demper_ider = get_json(api_base_url + "vegobjekter/103?"
+                                                 "inkluder=lokasjon"
+                                  "&antall=" + str(default_numrows))
 
-    print(fotobokser)
+    veg_dict_copy = veg_dict.copy()
+
+    match_vei_referanser(farts_demper_ider, veg_dict_copy)
+
+    data_frame = pd.DataFrame.from_dict({'fartsdempere': veg_dict_copy})
+    print(data_frame)
+    print(data_frame.count())
