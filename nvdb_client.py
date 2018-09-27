@@ -99,15 +99,22 @@ def initialisere_vei_referanser(vei_referanser_file):
     return veg_dict
 
 
-def get_data_frame(variabel_navn_i_data_frame, veg_dict, vei_objekt_id):
-    farts_demper_ider = get_json(api_base_url + "vegobjekter/" + vei_objekt_id
-                                 + "?inkluder=lokasjon"
-                                   "&antall=" + str(default_numrows))
-    match_vei_referanser(variabel_navn_i_data_frame, farts_demper_ider, veg_dict)
+def get_data_frame(variabel_navn_i_data_frame, veg_dict, vei_objekt_id, legg_til_dato):
+    url = '{}vegobjekter/{}?inkluder=lokasjon&antall={}'\
+        .format(api_base_url, vei_objekt_id, str(default_numrows))
+
+    if legg_til_dato:
+        url += "&egenskap=({dato}>'{aar}')".format(dato=dato_id, aar=aar_2012)
+
+    variabel_ider = get_json(url)
+    match_vei_referanser(variabel_navn_i_data_frame, variabel_ider, veg_dict)
     return pd.DataFrame.from_dict({variabel_navn_i_data_frame: veg_dict})
 
 
 if __name__ == '__main__':
+    dato_id = '5055'
+    aar_2012 = '2013-01-01'
+
     europaveg_id = '5492'
     riksveg_id = '5493'
     fylkesveg_id = '5494'
@@ -127,17 +134,17 @@ if __name__ == '__main__':
     vei_referanser_file = Path("vei_referanser.txt")
     veg_dict = initialisere_vei_referanser(vei_referanser_file)
 
-    data_frame_farts_demper = get_data_frame('fartsdempere', veg_dict.copy(), farts_demper_id)
-    data_frame_veg_tiltak = get_data_frame('veg_tiltak', veg_dict.copy(), vei_tiltak_id)
-    data_frame_trafikk_mengde = get_data_frame('trafikk_mengde', veg_dict.copy(), trafikk_mengde_id)
-    data_frame_veg_standard = get_data_frame('veg_standard', veg_dict.copy(), veg_standard_id)
-    data_frame_fotobokser = get_data_frame('fotobokser', veg_dict.copy(), fotoboks_id)
-    data_frame_vegskulder = get_data_frame('vegskulder', veg_dict.copy(), vegskulder_id)
-    data_frame_vegdekke_klasse = get_data_frame('vegdekke_klasse', veg_dict.copy(), vegdekke_klasse_id)
-    data_frame_vegbredde = get_data_frame('vegbredde', veg_dict.copy(), vegbredde_id)
-    data_frame_svingerestriksjon = get_data_frame('svingerestriksjon', veg_dict.copy(), svingerestriksjon_id)
-    data_frame_vilt_fare = get_data_frame('vilt_fare', veg_dict.copy(), vilt_fare_id)
-    data_frame_trafikk_ulykke = get_data_frame('trafikk_ulykke', veg_dict.copy(), trafikk_ulykke_id)
+    data_frame_farts_demper = get_data_frame('fartsdempere', veg_dict.copy(), farts_demper_id, False)
+    data_frame_veg_tiltak = get_data_frame('veg_tiltak', veg_dict.copy(), vei_tiltak_id, False)
+    data_frame_trafikk_mengde = get_data_frame('trafikk_mengde', veg_dict.copy(), trafikk_mengde_id, False)
+    data_frame_veg_standard = get_data_frame('veg_standard', veg_dict.copy(), veg_standard_id, False)
+    data_frame_fotobokser = get_data_frame('fotobokser', veg_dict.copy(), fotoboks_id, False)
+    data_frame_vegskulder = get_data_frame('vegskulder', veg_dict.copy(), vegskulder_id, False)
+    data_frame_vegdekke_klasse = get_data_frame('vegdekke_klasse', veg_dict.copy(), vegdekke_klasse_id, False)
+    data_frame_vegbredde = get_data_frame('vegbredde', veg_dict.copy(), vegbredde_id, False)
+    data_frame_svingerestriksjon = get_data_frame('svingerestriksjon', veg_dict.copy(), svingerestriksjon_id, False)
+    data_frame_vilt_fare = get_data_frame('vilt_fare', veg_dict.copy(), vilt_fare_id, False)
+    data_frame_trafikk_ulykke = get_data_frame('trafikk_ulykke', veg_dict.copy(), trafikk_ulykke_id, True)
 
     resultat = data_frame_farts_demper
     resultat = resultat.join(data_frame_veg_tiltak)
