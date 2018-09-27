@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 
-# -*- coding: utf-8 -*-
 """
-Spyder Editor
-
-This is a temporary script file.
+Modell
 """
 import pandas as pd
 import sklearn
@@ -92,7 +89,7 @@ def change_var(df, var, value, model):
     data['ulykker før endring'] = df['trafikk_ulykke']
     data['forskjell'] = diff
     data = data.sort_values('ulykker før endring', ascending=False)
-    return data.to_html()
+    return data
 
 def modell(data, kolonne, endring):
     data_ = pd.read_csv(data, index_col=0)
@@ -107,7 +104,7 @@ def reality():
     df = pd.read_csv('/static/datasett.csv',
                    index_col=0)
     df_sort = df.sort_values('trafikk_ulykke', ascending=False)
-    return df_sort.iloc[0:20, :]
+    return df_sort.iloc[0:20, :].to_html()
 
 if __name__ == '__main__':
     res = modell(data='C:/Users/LES/PycharmProjects/XY-matrise.csv',
