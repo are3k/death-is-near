@@ -12,7 +12,7 @@ class Config(object):
     DEBUG = os.environ.get('SSBADM_DEBUG') or False
     TESTING = os.environ.get('SSBADM_TESTING') or False
     CSRF_ENABLED = os.environ.get('SSBADM_CSRF_ENABLED') or True
-    PORT = os.environ.get('SSBADM_PORT') or "80"
+    PORT = os.environ.get('SSBADM_PORT') or "5000"
     ENV = os.environ.get('SSB_ENV') or "Production"
 
 
