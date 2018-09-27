@@ -1,6 +1,5 @@
 <div id="logo"><img src="/static/img/SSB_logo.png" alt="SSB logo"></div>
 <div class="ui menu">
-    <a class="active item" href="/jobs">Jobs</a>
-    <a class="item" href="/planning">Planning</a>
-    <a class="item" href="/help">Help</a>
+    <a class="{% if modellen %}active {% endif %}item" href="/">Modellen </a>
+    <a class="{% if about %}active {% endif %}item" href="/about">Om arbeidet</a>
 </div>

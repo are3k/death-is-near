@@ -43,27 +43,28 @@ def get_vei_referanser(data, vei_referanser_file):
     return vei_dict
 
 
-def match_vei_referanser(data, vei_ref_dict):
+def match_vei_referanser(variabel_navn_i_data_frame, data, vei_ref_dict):
     while True:
-        for fartsdemper in data['objekter']:
-            if 'vegreferanser' in fartsdemper['lokasjon']:
+        for o in data['objekter']:
+            if 'vegreferanser' in o['lokasjon']:
                 # ta bare de fartsdempere på ikke-kommunale veier
-                if fartsdemper['lokasjon']['vegreferanser'][0]['kommune'] == 0:
-                    vei_referanse_til_objektet = fartsdemper['lokasjon']['vegreferanser'][0]['kortform']
-                    vei_referanse_til_objektet_uten_meter_suffix = VEI_REF_MAL.match(vei_referanse_til_objektet).group(1)
-                    if vei_referanse_til_objektet_uten_meter_suffix in vei_ref_dict:
-                        if vei_ref_dict[vei_referanse_til_objektet_uten_meter_suffix] is None:
-                            vei_ref_dict[vei_referanse_til_objektet_uten_meter_suffix] = 1
+                if o['lokasjon']['vegreferanser'][0]['kommune'] == 0:
+                    vei_ref_til_objektet = o['lokasjon']['vegreferanser'][0]['kortform']
+                    vei_ref_til_objektet_uten_meter_suffix = VEI_REF_MAL.match(vei_ref_til_objektet).group(1)
+                    if vei_ref_til_objektet_uten_meter_suffix in vei_ref_dict:
+                        if vei_ref_dict[vei_ref_til_objektet_uten_meter_suffix] is None:
+                            vei_ref_dict[vei_ref_til_objektet_uten_meter_suffix] = 1
                         else:
-                            vei_ref_dict[vei_referanse_til_objektet_uten_meter_suffix] += 1
+                            vei_ref_dict[vei_ref_til_objektet_uten_meter_suffix] += 1
                     else:
-                        print('vei referanse {} fra fartsdemper {} finnes ikke i vei referanse lista'
-                              .format(vei_referanse_til_objektet_uten_meter_suffix,
-                                      fartsdemper['id']))
+                        print('vei referanse {} fra {} {} finnes ikke i vei referanse lista'
+                              .format(vei_ref_til_objektet_uten_meter_suffix,
+                                      variabel_navn_i_data_frame,
+                                      o['id']))
             else:
-                print('fartsdemper id {} har ikke vei referanse'.format(fartsdemper['id']))
+                print(variabel_navn_i_data_frame + ' id {} har ikke vei referanse'.format(o['id']))
         if data['metadata']['returnert'] == default_numrows:
-            # print('ny side' + " etter " + str(data['metadata']['returnert']) + " treff")
+            print('ny side' + " etter " + str(data['metadata']['returnert']) + " treff")
             data = get_json(data['metadata']['neste']['href'])
         else:
             print("det var " + str(data['metadata']['returnert']) + " treff på siste side")
@@ -90,29 +91,72 @@ def initialisere_vei_referanser(vei_referanser_file):
                                                      "{veiKategoriId}={riksveg} "
                                                      "OR {veiKategoriId}={fylkesveg} "
                                                      "OR {veiKategoriId}={europaveg})"
-                                      .format(veiKategoriId='4566', riksveg=riksvegId, fylkesveg=fylkesvegId,
-                                              europaveg=europavegId) +
+                                      .format(veiKategoriId='4566', riksveg=riksveg_id, fylkesveg=fylkesveg_id,
+                                              europaveg=europaveg_id) +
                                       "&antall=" + str(default_numrows))
         veg_dict = get_vei_referanser(vei_referanse_ider, vei_referanser_file)
 
     return veg_dict
 
+
+def get_data_frame(variabel_navn_i_data_frame, veg_dict, vei_objekt_id, legg_til_dato):
+    url = '{}vegobjekter/{}?inkluder=lokasjon,egenskaper&antall={}'\
+        .format(api_base_url, vei_objekt_id, str(default_numrows))
+
+    if legg_til_dato:
+        url += "&egenskap=({dato}>'{aar}')".format(dato=dato_id, aar=aar_2013)
+
+    variabel_ider = get_json(url)
+    match_vei_referanser(variabel_navn_i_data_frame, variabel_ider, veg_dict)
+    return pd.DataFrame.from_dict({variabel_navn_i_data_frame: veg_dict})
+
+
 if __name__ == '__main__':
-    europavegId = '5492'
-    riksvegId = '5493'
-    fylkesvegId = '5494'
+    dato_id = '5055'
+    aar_2013 = '2013-01-01'
+
+    europaveg_id = '5492'
+    riksveg_id = '5493'
+    fylkesveg_id = '5494'
+
+    farts_demper_id = '103'
+    vei_tiltak_id = '575'
+    trafikk_mengde_id = '540'
+    veg_standard_id = '541'
+    fotoboks_id = '775'
+    vegskulder_id = '269'
+    vegdekke_klasse_id = '831'
+    vegbredde_id = '583'
+    svingerestriksjon_id = '573'
+    vilt_fare_id = '291'
+    trafikk_ulykke_id = '570'
 
     vei_referanser_file = Path("vei_referanser.txt")
     veg_dict = initialisere_vei_referanser(vei_referanser_file)
 
-    farts_demper_ider = get_json(api_base_url + "vegobjekter/103?"
-                                                 "inkluder=lokasjon"
-                                  "&antall=" + str(default_numrows))
+    data_frame_farts_demper = get_data_frame('fartsdempere', veg_dict.copy(), farts_demper_id, False)
+    data_frame_veg_tiltak = get_data_frame('veg_tiltak', veg_dict.copy(), vei_tiltak_id, False)
+    data_frame_trafikk_mengde = get_data_frame('trafikk_mengde', veg_dict.copy(), trafikk_mengde_id, False)
+    data_frame_veg_standard = get_data_frame('veg_standard', veg_dict.copy(), veg_standard_id, False)
+    data_frame_fotobokser = get_data_frame('fotobokser', veg_dict.copy(), fotoboks_id, False)
+    data_frame_vegskulder = get_data_frame('vegskulder', veg_dict.copy(), vegskulder_id, False)
+    data_frame_vegdekke_klasse = get_data_frame('vegdekke_klasse', veg_dict.copy(), vegdekke_klasse_id, False)
+    data_frame_vegbredde = get_data_frame('vegbredde', veg_dict.copy(), vegbredde_id, False)
+    data_frame_svingerestriksjon = get_data_frame('svingerestriksjon', veg_dict.copy(), svingerestriksjon_id, False)
+    data_frame_vilt_fare = get_data_frame('vilt_fare', veg_dict.copy(), vilt_fare_id, False)
+    data_frame_trafikk_ulykke = get_data_frame('trafikk_ulykke', veg_dict.copy(), trafikk_ulykke_id, True)
 
-    veg_dict_copy = veg_dict.copy()
+    resultat = data_frame_farts_demper
+    resultat = resultat.join(data_frame_veg_tiltak)
+    resultat = resultat.join(data_frame_trafikk_mengde)
+    resultat = resultat.join(data_frame_veg_standard)
+    resultat = resultat.join(data_frame_fotobokser)
+    resultat = resultat.join(data_frame_vegskulder)
+    resultat = resultat.join(data_frame_vegdekke_klasse)
+    resultat = resultat.join(data_frame_vegbredde)
+    resultat = resultat.join(data_frame_svingerestriksjon)
+    resultat = resultat.join(data_frame_vilt_fare)
+    resultat = resultat.join(data_frame_trafikk_ulykke)
 
-    match_vei_referanser(farts_demper_ider, veg_dict_copy)
-
-    data_frame = pd.DataFrame.from_dict({'fartsdempere': veg_dict_copy})
-    print(data_frame)
-    print(data_frame.count())
+    print(resultat)
+    print(resultat.count())
