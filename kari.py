@@ -1,2 +1,0 @@
-# kari sin kode
-
