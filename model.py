@@ -95,7 +95,7 @@ def change_var(df, var, value, model):
     return data
 
 def modell(data, kolonne, endring):
-    data_ = pd.read_csv(data, index_col='strekning')
+    data_ = pd.read_csv(data, index_col=0)
     X_train, X_test, y_train, y_test = split(data_)
     trainscore, testscore, pred, clf, imp = RF_reg(X_train, X_test, y_train,
                                                    y_test)
