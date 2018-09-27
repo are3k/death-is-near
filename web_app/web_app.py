@@ -2,21 +2,29 @@ from flask import Flask, render_template, redirect, flash
 from config import Config
 import sys, os
 from forms import ModellForm
-from model import *
+import model
 
 web_app = Flask(__name__)
 
 web_app.config.from_object(os.getenv('web_app_SETTINGS', 'config.Config'))
 
 
-@web_app.route('/')
+@web_app.route('/', methods=['GET','POST'])
 def index():
 	form = ModellForm()
-	modell = model.modell(none, 'kolonnevelger',verdi)
-	return render_template('index.html', index=True, form=form, modell=modell)
+	if form.validate_on_submit():
+		modell = model.modell(form.change_parameter.data,
+			form.change.data)
+		return render_template('index.html',
+			index=True,
+			form=form,
+			change_parameter=form.change_parameter.data)
+	#modell = model.modell(none, 'kolonnevelger',verdi)
+	#modell = model.reality()
+	return render_template('index.html', index=True, form=form)
 
 
-@web_app.route('/about', methods=['GET','POST'])
+@web_app.route('/about')
 def about():
 	return render_template('about.html', about=True)
 

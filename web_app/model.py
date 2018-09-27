@@ -103,8 +103,8 @@ def modell(data, kolonne, endring):
     return new_data.iloc[:10,:].to_html()
 
 
-def reality(filename):
-    df = pd.read_csv(filename,
+def reality():
+    df = pd.read_csv('/static/datasett.csv',
                    index_col=0)
     df_sort = df.sort_values('trafikk_ulykke', ascending=False)
     return df_sort.iloc[0:20, :]
