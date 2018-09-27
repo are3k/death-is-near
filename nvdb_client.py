@@ -30,7 +30,7 @@ def get_vei_referanser(data, vei_referanser_file):
                 kortform_uten_meter_suffix = VEI_REF_MAL.match(kortform).group(1)
                 if kortform_uten_meter_suffix not in vei_dict:
                     print(kortform_uten_meter_suffix)
-                    vei_dict[kortform_uten_meter_suffix] = None
+                    vei_dict[kortform_uten_meter_suffix] = 0
                     f.write(kortform_uten_meter_suffix + "\n")
             if data['metadata']['returnert'] == default_numrows:
                 print('ny side' + " etter " + str(data['metadata']['returnert']) + " treff")
@@ -43,19 +43,63 @@ def get_vei_referanser(data, vei_referanser_file):
     return vei_dict
 
 
+def get_egenskap(egenskaper, kode):
+    for e in egenskaper:
+        if str(e['id']) == kode:
+            return e['verdi']
+
+
+def kalkuler_verdi(jsonObjekt, vei_ref_teller, vei_ref_til_objektet_uten_meter_suffix):
+    if str(jsonObjekt['metadata']['type']['id']) == trafikk_ulykke_id:
+        antall_drepte = get_egenskap(jsonObjekt['egenskaper'], '5070')
+        antall_meget_alvorlig_skadet = get_egenskap(jsonObjekt['egenskaper'], '5071')
+        antall_alvorlig_skadet = get_egenskap(jsonObjekt['egenskaper'], '5072')
+        antall_lettere_skadet = get_egenskap(jsonObjekt['egenskaper'], '5073')
+        return antall_drepte * 10 + antall_meget_alvorlig_skadet * 8 + \
+               antall_alvorlig_skadet * 6 + antall_lettere_skadet * 1
+    elif str(jsonObjekt['metadata']['type']['id']) == vegskulder_id:
+        if 'egenskaper' not in jsonObjekt:
+            return 2
+        type = get_egenskap(jsonObjekt['egenskaper'], '1224')
+        vekt = 0
+        if type is None:
+            vekt = 2
+        elif type == 'Skulder, grus':
+            vekt = 1
+        elif type == 'Skulder, asfalt':
+            vekt = 3
+        return vekt
+    elif str(jsonObjekt['metadata']['type']['id']) == farts_demper_id \
+        or jsonObjekt['metadata']['type']['id'] == svingerestriksjon_id \
+        or jsonObjekt['metadata']['type']['id'] == vilt_fare_id \
+        or jsonObjekt['metadata']['type']['id'] == fotoboks_id:
+       return 1
+    elif str(jsonObjekt['metadata']['type']['id']) == trafikk_mengde_id:
+        trafikk_mengde = get_egenskap(jsonObjekt['egenskaper'], '4623')
+        vei_ref_teller[vei_ref_til_objektet_uten_meter_suffix] += 1
+        return trafikk_mengde
+    elif str(jsonObjekt['metadata']['type']['id']) == vegbredde_id:
+        vei_bredde = get_egenskap(jsonObjekt['egenskaper'], '5555')
+        vei_ref_teller[vei_ref_til_objektet_uten_meter_suffix] += 1
+        return vei_bredde
+    else:
+        return 0
+
 def match_vei_referanser(variabel_navn_i_data_frame, data, vei_ref_dict):
+    vei_ref_teller = vei_ref_dict.copy()
+    for x in vei_ref_teller:
+        vei_ref_teller[x] = 1
+
     while True:
         for o in data['objekter']:
             if 'vegreferanser' in o['lokasjon']:
-                # ta bare de fartsdempere på ikke-kommunale veier
+                # ta bare de objektene på ikke-kommunale veier
                 if o['lokasjon']['vegreferanser'][0]['kommune'] == 0:
                     vei_ref_til_objektet = o['lokasjon']['vegreferanser'][0]['kortform']
                     vei_ref_til_objektet_uten_meter_suffix = VEI_REF_MAL.match(vei_ref_til_objektet).group(1)
                     if vei_ref_til_objektet_uten_meter_suffix in vei_ref_dict:
-                        if vei_ref_dict[vei_ref_til_objektet_uten_meter_suffix] is None:
-                            vei_ref_dict[vei_ref_til_objektet_uten_meter_suffix] = 1
-                        else:
-                            vei_ref_dict[vei_ref_til_objektet_uten_meter_suffix] += 1
+                        vei_ref_dict[vei_ref_til_objektet_uten_meter_suffix] += \
+                            kalkuler_verdi(o, vei_ref_teller, vei_ref_til_objektet_uten_meter_suffix)
                     else:
                         print('vei referanse {} fra {} {} finnes ikke i vei referanse lista'
                               .format(vei_ref_til_objektet_uten_meter_suffix,
@@ -71,12 +115,14 @@ def match_vei_referanser(variabel_navn_i_data_frame, data, vei_ref_dict):
             print(len(data['objekter']))
             break
 
+    for x in vei_ref_dict:
+        vei_ref_dict[x] = vei_ref_dict[x] / vei_ref_teller[x]
 
 def les_vei_referanser_fra_fil(vei_dict):
     with open('vei_referanser.txt', 'r') as f:
         for line in f:
             line_without_newline = line.replace("\n", "")
-            vei_dict[line_without_newline] = None
+            vei_dict[line_without_newline] = 0
 
 
 def initialisere_vei_referanser(vei_referanser_file):
@@ -100,7 +146,7 @@ def initialisere_vei_referanser(vei_referanser_file):
 
 
 def get_data_frame(variabel_navn_i_data_frame, veg_dict, vei_objekt_id, legg_til_dato):
-    url = '{}vegobjekter/{}?inkluder=lokasjon&antall={}'\
+    url = '{}vegobjekter/{}?inkluder=lokasjon,egenskaper,metadata&antall={}'\
         .format(api_base_url, vei_objekt_id, str(default_numrows))
 
     if legg_til_dato:
@@ -120,7 +166,6 @@ if __name__ == '__main__':
     fylkesveg_id = '5494'
 
     farts_demper_id = '103'
-    vei_tiltak_id = '575'
     trafikk_mengde_id = '540'
     veg_standard_id = '541'
     fotoboks_id = '775'
@@ -135,7 +180,6 @@ if __name__ == '__main__':
     veg_dict = initialisere_vei_referanser(vei_referanser_file)
 
     data_frame_farts_demper = get_data_frame('fartsdempere', veg_dict.copy(), farts_demper_id, False)
-    data_frame_veg_tiltak = get_data_frame('veg_tiltak', veg_dict.copy(), vei_tiltak_id, False)
     data_frame_trafikk_mengde = get_data_frame('trafikk_mengde', veg_dict.copy(), trafikk_mengde_id, False)
     data_frame_veg_standard = get_data_frame('veg_standard', veg_dict.copy(), veg_standard_id, False)
     data_frame_fotobokser = get_data_frame('fotobokser', veg_dict.copy(), fotoboks_id, False)
@@ -147,7 +191,6 @@ if __name__ == '__main__':
     data_frame_trafikk_ulykke = get_data_frame('trafikk_ulykke', veg_dict.copy(), trafikk_ulykke_id, True)
 
     resultat = data_frame_farts_demper
-    resultat = resultat.join(data_frame_veg_tiltak)
     resultat = resultat.join(data_frame_trafikk_mengde)
     resultat = resultat.join(data_frame_veg_standard)
     resultat = resultat.join(data_frame_fotobokser)
