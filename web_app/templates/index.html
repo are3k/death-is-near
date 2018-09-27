@@ -3,17 +3,23 @@
   {% include 'header.html' %}
 {% endblock %}
 {% block content %}
-<h1>SSB cloud platform</h1>
-<p>dette skal bare sørge for et bygg uten tag...</p>
-<table>
-	{% for item in data %}
-	<tr>
-		{% for element in item %}
-		<td>{{element}}</td>
-		{% endfor %}
-	</tr>
-	{% endfor %}
-</table>
+<h1>SSB Hacaton - Vegstatistikk</h1>
+<form action="" method="post" novalidate>
+<div class="ui grid">
+	<div class="six wide column">
+        {{ form.hidden_tag() }}
+        {{ form.change_parameter.label }}<br>
+        {{ form.change_parameter }}
+    </div>
+	<div class="six wide column">
+        {{ form.change.label }}<br>
+        {{ form.change }}
+    </div>
+	<div class="four wide column">
+        {{ form.submit() }}
+    </div>
+</div>
+</form>
 {% endblock %}
 {% block footer %}
   {% include 'footer.html' %}

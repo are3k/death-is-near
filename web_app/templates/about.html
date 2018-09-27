@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block header %}
+  {% include 'header.html' %}
+{% endblock %}
+{% block content %}
+<h1>SSB Hacaton - Vegstatistikk</h1>
+<div class="ui grid">
+	<div class="five wide column">
+		<h2>Intensjon</h2>
+		<p>Lære mer om maskinlæring og Python. Besvare spørsmålet: Hvilken veg er det best å gjøre forbedringer på</p>
+	</div>
+	<div class="five wide column">
+		<h2>Arbeidsmåte</h2>
+		<p>Vi delte gruppen i to, og jobbet parallelt med maskinlæringsmodellen og
+		api-klienten</p>
+	</div>
+	<div class="five wide column">
+		<h2>Verktøy</h2>
+		<ul>
+			<li>Python</li>
+			<li>Spyder</li>
+			<li><a href="http://scikit-learn.org/stable/index.html">scikit-learn</a></li>
+			<li><a hrev="http://api.vegdata.no/">API-dokumentasjonen for Statens vegvesens trafikkdatabase</a></li>
+		</ul>
+	</div>
+</div>
+	<h2>Variabler og behandling</h2>
+	<p>Vegreferanser forenkles til å gjelde vegnummer, fylke og kommune, det vil si at vi ikke tar hensyn til nøyaktig plassering langs vegen. Vi ekskluderer veger mindre enn fylkesveger. Vi har valgt ut følgende objekttyper som interessante for vårt formål:
+		<ul class="ui list">
+			<li>Ulykker<br/>
+				Vi tilordner verdipoeng slik
+				<table class="ui very basic collapsing celled table">
+					<tr><th>Skadetype</th><th>Verdipoeng</th></tr>
+					<tr><td>Drepte</td><td>10</td></tr>
+					<tr><td>Meget hardt skadd</td><td>8</td></tr>
+					<tr><td>Hardt skadd</td><td>6</td></tr>
+					<tr><td>Letere skadd</td><td>1</td></tr>
+				</table>
+			<li>Vegtiltak<br/>
+				Antall tiltak for vegstrekningen</li>
+			<li>Trafikkmengde<br/>
+				Gjennomsnitt for registrerte trafikkmålingen for vegstrekningen. Dersom det ikke er data for trafikkmengde bruker vi gjennomsnittet for alle trafikkmålinger</li>
+			<li>Fartsdempere<br/>
+				Antallet fartsdempere av forskjellig typer på vegstrekningen</li>
+			<li>Automatisk trafikkontroll (fotobokser)</li>
+
+<table>
+	{% for item in data %}
+	<tr>
+		{% for element in item %}
+		<td>{{element}}</td>
+		{% endfor %}
+	</tr>
+	{% endfor %}
+</table>
+{% endblock %}
+{% block footer %}
+  {% include 'footer.html' %}
+{% endblock %}
