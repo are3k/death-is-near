@@ -14,7 +14,7 @@ def index():
 	form = ModellForm()
 	if form.validate_on_submit():
 		modell = model.modell(form.change_parameter.data,
-			form.change.data)
+			int(form.change.data))
 		return render_template('index.html',
 			index=True,
 			form=form,
