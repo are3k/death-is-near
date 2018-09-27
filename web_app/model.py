@@ -3,6 +3,7 @@
 """
 Modell
 """
+import os
 import pandas as pd
 import sklearn
 import numpy as np
@@ -101,7 +102,8 @@ def modell(data, kolonne, endring):
 
 
 def reality():
-    df = pd.read_csv('/static/datasett.csv',
+    file = os.path.join(basepath, 'datasett.csv')
+    df = pd.read_csv(file,
                    index_col=0)
     df_sort = df.sort_values('trafikk_ulykke', ascending=False)
     return df_sort.iloc[0:20, :].to_html()

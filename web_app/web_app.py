@@ -19,8 +19,7 @@ def index():
 			index=True,
 			form=form,
 			change_parameter=form.change_parameter.data)
-	#modell = model.modell(none, 'kolonnevelger',verdi)
-	#modell = model.reality()
+	modell = model.reality()
 	return render_template('index.html', index=True, form=form)
 
 
