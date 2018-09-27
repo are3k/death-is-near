@@ -103,6 +103,11 @@ def modell(data, kolonne, endring):
     return new_data.iloc[:10,:]
 
 
+def reality(filename):
+    df = pd.read_csv(filename,
+                   index_col=0)
+    df_sort = df.sort_values('trafikk_ulykke', ascending=False)
+    return df_sort.iloc[0:20, :]
 
 if __name__ == '__main__':
     res = modell(data='C:/Users/LES/PycharmProjects/XY-matrise.csv',
