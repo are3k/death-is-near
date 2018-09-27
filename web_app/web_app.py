@@ -18,9 +18,9 @@ def index():
 		return render_template('index.html',
 			index=True,
 			form=form,
-			change_parameter=form.change_parameter.data)
+			modell=modell)
 	modell = model.reality()
-	return render_template('index.html', index=True, form=form)
+	return render_template('index.html', index=True, form=form, modell=modell)
 
 
 @web_app.route('/about')

@@ -4,6 +4,7 @@
 Modell
 """
 import os
+from config import basedir
 import pandas as pd
 import sklearn
 import numpy as np
@@ -92,8 +93,9 @@ def change_var(df, var, value, model):
     data = data.sort_values('ulykker før endring', ascending=False)
     return data
 
-def modell(data, kolonne, endring):
-    data_ = pd.read_csv(data, index_col=0)
+def modell(kolonne, endring):
+    datafile = os.path.join(basedir, 'datasett.csv')
+    data_ = pd.read_csv(datafile, index_col=0)
     X_train, X_test, y_train, y_test = split(data_)
     trainscore, testscore, pred, clf, imp = RF_reg(X_train, X_test, y_train,
                                                    y_test)
@@ -102,15 +104,14 @@ def modell(data, kolonne, endring):
 
 
 def reality():
-    file = os.path.join(basepath, 'datasett.csv')
-    df = pd.read_csv(file,
+    datafile = os.path.join(basedir, 'datasett.csv')
+    df = pd.read_csv(datafile,
                    index_col=0)
     df_sort = df.sort_values('trafikk_ulykke', ascending=False)
     return df_sort.iloc[0:20, :].to_html()
 
 if __name__ == '__main__':
-    res = modell(data='C:/Users/LES/PycharmProjects/XY-matrise.csv',
-                 kolonne='trafikkmengde', endring= -10)
+    res = modell(kolonne='trafikkmengde', endring= -10)
     print(np.shape(res))
     print(res)
 
