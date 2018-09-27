@@ -78,9 +78,9 @@ def kalkuler_verdi(jsonObjekt, vei_ref_teller, vei_ref_til_objektet_uten_meter_s
             vekt = 3
         return vekt
     elif str(jsonObjekt['metadata']['type']['id']) == farts_demper_id \
-        or jsonObjekt['metadata']['type']['id'] == svingerestriksjon_id \
-        or jsonObjekt['metadata']['type']['id'] == vilt_fare_id \
-        or jsonObjekt['metadata']['type']['id'] == fotoboks_id:
+        or str(jsonObjekt['metadata']['type']['id']) == svingerestriksjon_id \
+        or str(jsonObjekt['metadata']['type']['id']) == vilt_fare_id \
+        or str(jsonObjekt['metadata']['type']['id']) == fotoboks_id:
        return 1
     elif str(jsonObjekt['metadata']['type']['id']) == trafikk_mengde_id:
         trafikk_mengde = get_egenskap(jsonObjekt['egenskaper'], '4623')
@@ -198,19 +198,19 @@ if __name__ == '__main__':
     # data_frame_veg_standard = get_data_frame('veg_standard', veg_dict.copy(), veg_standard_id, False)
     data_frame_fotobokser = get_data_frame('fotobokser', veg_dict.copy(), fotoboks_id, False)
     data_frame_vegskulder = get_data_frame('vegskulder', veg_dict.copy(), vegskulder_id, False)
-    data_frame_vegdekke_klasse = get_data_frame('vegdekke_klasse', veg_dict.copy(), vegdekke_klasse_id, False)
+    # data_frame_vegdekke_klasse = get_data_frame('vegdekke_klasse', veg_dict.copy(), vegdekke_klasse_id, False)
     # data_frame_vegbredde = get_data_frame('vegbredde', veg_dict.copy(), vegbredde_id, False)
     data_frame_svingerestriksjon = get_data_frame('svingerestriksjon', veg_dict.copy(), svingerestriksjon_id, False)
     data_frame_vilt_fare = get_data_frame('vilt_fare', veg_dict.copy(), vilt_fare_id, False)
     data_frame_fartsgrense = get_data_frame('fartsgrense', veg_dict.copy(), fartsgrenser_id, False)
-    data_frame_trafikk_ulykke = get_data_frame('trafikk_ulykke', veg_dict.copy(), trafikk_ulykke_id, True)
+    data_frame_trafikk_ulykke = get_data_frame('trafikk_ulykke', veg_dict.copy(), trafikk_ulykke_id, False)
 
     resultat = data_frame_farts_demper
     resultat = resultat.join(data_frame_trafikk_mengde)
     # resultat = resultat.join(data_frame_veg_standard)
     resultat = resultat.join(data_frame_fotobokser)
     resultat = resultat.join(data_frame_vegskulder)
-    resultat = resultat.join(data_frame_vegdekke_klasse)
+    # resultat = resultat.join(data_frame_vegdekke_klasse)
     # resultat = resultat.join(data_frame_vegbredde)
     resultat = resultat.join(data_frame_svingerestriksjon)
     resultat = resultat.join(data_frame_vilt_fare)
