@@ -55,6 +55,14 @@ def kalkuler_verdi(jsonObjekt, vei_ref_teller, vei_ref_til_objektet_uten_meter_s
         antall_meget_alvorlig_skadet = get_egenskap(jsonObjekt['egenskaper'], '5071')
         antall_alvorlig_skadet = get_egenskap(jsonObjekt['egenskaper'], '5072')
         antall_lettere_skadet = get_egenskap(jsonObjekt['egenskaper'], '5073')
+        if antall_lettere_skadet is None:
+            antall_lettere_skadet = 1
+        if antall_alvorlig_skadet is None:
+            antall_alvorlig_skadet = 1
+        if antall_meget_alvorlig_skadet is None:
+            antall_meget_alvorlig_skadet = 1
+        if antall_drepte is None:
+            antall_drepte = 1
         return antall_drepte * 10 + antall_meget_alvorlig_skadet * 8 + \
                antall_alvorlig_skadet * 6 + antall_lettere_skadet * 1
     elif str(jsonObjekt['metadata']['type']['id']) == vegskulder_id:
@@ -101,12 +109,12 @@ def match_vei_referanser(variabel_navn_i_data_frame, data, vei_ref_dict):
                         vei_ref_dict[vei_ref_til_objektet_uten_meter_suffix] += \
                             kalkuler_verdi(o, vei_ref_teller, vei_ref_til_objektet_uten_meter_suffix)
                     else:
-                        print('vei referanse {} fra {} {} finnes ikke i vei referanse lista'
+                        print('veireferanse {} fra {} {} finnes ikke i veireferanse lista'
                               .format(vei_ref_til_objektet_uten_meter_suffix,
                                       variabel_navn_i_data_frame,
                                       o['id']))
             else:
-                print(variabel_navn_i_data_frame + ' id {} har ikke vei referanse'.format(o['id']))
+                print(variabel_navn_i_data_frame + ' id {} har ikke veireferanse'.format(o['id']))
         if data['metadata']['returnert'] == default_numrows:
             print('ny side' + " etter " + str(data['metadata']['returnert']) + " treff")
             data = get_json(data['metadata']['neste']['href'])
@@ -159,7 +167,7 @@ def get_data_frame(variabel_navn_i_data_frame, veg_dict, vei_objekt_id, legg_til
 
 if __name__ == '__main__':
     dato_id = '5055'
-    aar_2013 = '2013-01-01'
+    aar_2013 = '2010-01-01'
 
     europaveg_id = '5492'
     riksveg_id = '5493'
@@ -181,25 +189,27 @@ if __name__ == '__main__':
 
     data_frame_farts_demper = get_data_frame('fartsdempere', veg_dict.copy(), farts_demper_id, False)
     data_frame_trafikk_mengde = get_data_frame('trafikk_mengde', veg_dict.copy(), trafikk_mengde_id, False)
-    data_frame_veg_standard = get_data_frame('veg_standard', veg_dict.copy(), veg_standard_id, False)
+    # data_frame_veg_standard = get_data_frame('veg_standard', veg_dict.copy(), veg_standard_id, False)
     data_frame_fotobokser = get_data_frame('fotobokser', veg_dict.copy(), fotoboks_id, False)
     data_frame_vegskulder = get_data_frame('vegskulder', veg_dict.copy(), vegskulder_id, False)
     data_frame_vegdekke_klasse = get_data_frame('vegdekke_klasse', veg_dict.copy(), vegdekke_klasse_id, False)
-    data_frame_vegbredde = get_data_frame('vegbredde', veg_dict.copy(), vegbredde_id, False)
+    # data_frame_vegbredde = get_data_frame('vegbredde', veg_dict.copy(), vegbredde_id, False)
     data_frame_svingerestriksjon = get_data_frame('svingerestriksjon', veg_dict.copy(), svingerestriksjon_id, False)
     data_frame_vilt_fare = get_data_frame('vilt_fare', veg_dict.copy(), vilt_fare_id, False)
     data_frame_trafikk_ulykke = get_data_frame('trafikk_ulykke', veg_dict.copy(), trafikk_ulykke_id, True)
 
     resultat = data_frame_farts_demper
     resultat = resultat.join(data_frame_trafikk_mengde)
-    resultat = resultat.join(data_frame_veg_standard)
+    # resultat = resultat.join(data_frame_veg_standard)
     resultat = resultat.join(data_frame_fotobokser)
     resultat = resultat.join(data_frame_vegskulder)
     resultat = resultat.join(data_frame_vegdekke_klasse)
-    resultat = resultat.join(data_frame_vegbredde)
+    # resultat = resultat.join(data_frame_vegbredde)
     resultat = resultat.join(data_frame_svingerestriksjon)
     resultat = resultat.join(data_frame_vilt_fare)
     resultat = resultat.join(data_frame_trafikk_ulykke)
 
     print(resultat)
     print(resultat.count())
+
+    resultat.to_csv("datasett.csv")
