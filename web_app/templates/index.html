@@ -9,14 +9,14 @@
 	<div class="six wide column">
         {{ form.hidden_tag() }}
         {{ form.change_parameter.label }}<br>
-        {{ form.change_parameter }}
+        {{ form.change_parameter(class="ui compact selection dropdown") }}
     </div>
 	<div class="six wide column">
         {{ form.change.label }}<br>
-        {{ form.change }}
+        <div class="ui input">{{ form.change }}</div>
     </div>
 	<div class="four wide column">
-        {{ form.submit() }}
+        {{ form.submit(class="ui button") }}
     </div>
 </div>
 </form>
