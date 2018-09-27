@@ -92,7 +92,7 @@ def change_var(df, var, value, model):
     data['ulykker før endring'] = df['trafikk_ulykke']
     data['forskjell'] = diff
     data = data.sort_values('ulykker før endring', ascending=False)
-    return data
+    return data.to_html()
 
 def modell(data, kolonne, endring):
     data_ = pd.read_csv(data, index_col=0)
@@ -100,7 +100,7 @@ def modell(data, kolonne, endring):
     trainscore, testscore, pred, clf, imp = RF_reg(X_train, X_test, y_train,
                                                    y_test)
     new_data = change_var(data_, kolonne, endring, model=clf)
-    return new_data.iloc[:10,:]
+    return new_data.iloc[:10,:].to_html()
 
 
 def reality(filename):
