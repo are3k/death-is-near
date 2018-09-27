@@ -104,7 +104,7 @@ def get_data_frame(variabel_navn_i_data_frame, veg_dict, vei_objekt_id, legg_til
         .format(api_base_url, vei_objekt_id, str(default_numrows))
 
     if legg_til_dato:
-        url += "&egenskap=({dato}>'{aar}')".format(dato=dato_id, aar=aar_2012)
+        url += "&egenskap=({dato}>'{aar}')".format(dato=dato_id, aar=aar_2013)
 
     variabel_ider = get_json(url)
     match_vei_referanser(variabel_navn_i_data_frame, variabel_ider, veg_dict)
@@ -113,7 +113,7 @@ def get_data_frame(variabel_navn_i_data_frame, veg_dict, vei_objekt_id, legg_til
 
 if __name__ == '__main__':
     dato_id = '5055'
-    aar_2012 = '2013-01-01'
+    aar_2013 = '2013-01-01'
 
     europaveg_id = '5492'
     riksveg_id = '5493'
