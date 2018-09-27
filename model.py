@@ -105,6 +105,7 @@ if __name__ == '__main__':
     data_532 = data_532.iloc[:,-2:]
     data_532['ulykke'] = np.random.randint(30, size=len(data_532.index)).astype('float64')
     X_train, X_test, y_train, y_test = split(data_532)
+
     trainscore, testscore, pred, clf, imp = RF_reg(X_train, X_test, y_train, y_test)
 
     lin_regplot(X_train, y_train, clf)
