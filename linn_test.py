@@ -63,7 +63,8 @@ def RF_reg(X_train, X_test, y_train, y_test):
     pred = clf.predict(X_test)
     testscore = clf.score(X_test, y_test)
     print(gs.best_params_)
-    return trainscore, testscore, list(pred), clf
+    imp = clf.steps[1][1].feature_importances_
+    return trainscore, testscore, list(pred), clf, imp
 
 def lin_regplot(X, y, model):
     plt.scatter(X[:, 0], y, c='lightblue', label='observasjoner')
@@ -77,8 +78,23 @@ def lin_regplot(X, y, model):
     return
 
 
+def change_var(df, var, value, model):
+    """
+    :param df: data frame
+    :param var: column in df to be changed
+    :param value: value
+    :param model: prediction model
+    :return: new data frame with predictions and differences
+    """
 
-
+    data = df.copy()
+    data[var] += value
+    new = model.predict(data.iloc[:, :-1])
+    data.iloc[:, -1] = new
+    diff = df.iloc[:, -1] - new
+    data['endring'] = diff
+    data = data.sort_values('endring', ascending=True)
+    return data
 
 
 if __name__ == '__main__':
@@ -89,6 +105,11 @@ if __name__ == '__main__':
     data_532 = data_532.iloc[:,-2:]
     data_532['ulykke'] = np.random.randint(30, size=len(data_532.index)).astype('float64')
     X_train, X_test, y_train, y_test = split(data_532)
-    trainscore, testscore, pred, clf = RF_reg(X_train, X_test, y_train, y_test)
+    trainscore, testscore, pred, clf, imp = RF_reg(X_train, X_test, y_train, y_test)
 
     lin_regplot(X_train, y_train, clf)
+
+    # Eks
+    X_old = pd.DataFrame({'var1': [0, 1], 'var2': [2, 3], 'ulykke': [10, 16]})
+
+    X_new = change_var(X_old, 'var1', 10, model=clf)
