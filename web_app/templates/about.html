@@ -4,17 +4,17 @@
 {% endblock %}
 {% block content %}
 <h1>SSB Hacaton - Vegstatistikk</h1>
-<div class="ui grid">
-	<div class="five wide column">
+<div class="ui horizontal segments">
+	<div class="ui segment">
 		<h2>Intensjon</h2>
 		<p>Lære mer om maskinlæring og Python. Besvare spørsmålet: Hvilken veg er det best å gjøre forbedringer på</p>
 	</div>
-	<div class="five wide column">
+	<div class="ui segment">
 		<h2>Arbeidsmåte</h2>
 		<p>Vi delte gruppen i to, og jobbet parallelt med maskinlæringsmodellen og
 		api-klienten</p>
 	</div>
-	<div class="five wide column">
+	<div class="ui segment">
 		<h2>Verktøy</h2>
 		<ul>
 			<li>Python, Flask, Semantic UI</li>
@@ -24,6 +24,7 @@
 		</ul>
 	</div>
 </div>
+<div class="ui padded segment">
 	<h2>Variabler og behandling</h2>
 	<p>Vegreferanser forenkles til å gjelde vegnummer, fylke og kommune, det vil si at vi ikke tar hensyn til nøyaktig plassering langs vegen. Vi ekskluderer veger mindre enn fylkesveger. Vi har valgt ut følgende objekttyper som interessante for vårt formål:
 		<ul class="ui list">
@@ -36,6 +37,7 @@
 					<tr><td>Hardt skadd</td><td>6</td></tr>
 					<tr><td>Letere skadd</td><td>1</td></tr>
 				</table>
+			</li>
 			<li>Vegtiltak<br/>
 				Antall tiltak for vegstrekningen</li>
 			<li>Trafikkmengde<br/>
@@ -43,16 +45,8 @@
 			<li>Fartsdempere<br/>
 				Antallet fartsdempere av forskjellig typer på vegstrekningen</li>
 			<li>Automatisk trafikkontroll (fotobokser)</li>
+</div>
 
-<table>
-	{% for item in data %}
-	<tr>
-		{% for element in item %}
-		<td>{{element}}</td>
-		{% endfor %}
-	</tr>
-	{% endfor %}
-</table>
 {% endblock %}
 {% block footer %}
   {% include 'footer.html' %}
