@@ -85,14 +85,17 @@ def change_var(df, var, value, model):
     data = df.copy()
     data[var] += value
     # old = clf.predict(df)
-    new = model.predict(data.iloc[:, :-1])
+    new = model.predict(data.iloc[:, :-1]).astype(int)
     data['predikerte ulykker'] = new
     diff = new - df['trafikk_ulykke']
+
+    diff = ((new - df['trafikk_ulykke']) / df['trafikk_ulykke']) * 100
     data['ulykker før endring'] = df['trafikk_ulykke']
+    data['forskjell %'] = round(diff, 1)
     data['forskjell'] = diff
     #data = data.sort_values('ulykker før endring', ascending=False)
     data = data.sort_values('forskjell', ascending=True)
-    return data.astype(int)
+    return data
 
 def modell(kolonne, endring):
     datafile = os.path.join(basedir, 'datasett.csv')
@@ -104,7 +107,8 @@ def modell(kolonne, endring):
     return new_data.iloc[:20,:].to_html(classes="ui striped table",
         border = 0,
         justify = 'left',
-        columns = ['trafikk_mengde','fartsgrense','predikerte ulykker','ulykker før endring','forskjell'])
+        columns = ['trafikk_mengde','fartsgrense','predikerte ulykker',
+                   'ulykker før endring','forskjell %'])
 
 
 def reality():
@@ -118,7 +122,7 @@ def reality():
         justify = 'left')
 
 if __name__ == '__main__':
-    res = modell(kolonne='trafikkmengde', endring= -10)
+    res = modell(kolonne='trafikk_mengde', endring= -10)
     print(np.shape(res))
     print(res)
 
