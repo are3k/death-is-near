@@ -1,8 +1,16 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
+from wtforms import SelectField, StringField, SubmitField
 from wtforms.validators import DataRequired
 
-class JobsForm(FlaskForm):
-    job_name = StringField('Job name', validators=[DataRequired()])
-    job_description = StringField('Description')
-    submit = SubmitField('Apply')
+class ModellForm(FlaskForm):
+    change_parameter = SelectField(
+        'Testparameter',
+        choices=[('trafikk_mengde', 'Trafikkmengde'),
+         ('fartsdempere', 'Fartsdempere'),
+         ('fotobokser', 'Fotoboks'),
+         ('fartsgrense','Fartsgrense'),
+         ('svingerestriksjon','Svingrestriksjoner'),
+         ('vilt_fare', 'Viltfare')]
+    )
+    change = StringField('Endring')
+    submit = SubmitField('Kjør modell')

@@ -9,7 +9,7 @@ class Config(object):
     DB_PORT = os.environ.get('SSBADM_DB_PORT') or '3306'
     DB_USER = os.environ.get('SSBADM_DB_USER') or 'ssbadm'
     DB_PASS = os.environ.get('SSBADM_DB_PASS') or 'kake10kake'
-    DEBUG = os.environ.get('SSBADM_DEBUG') or False
+    DEBUG = os.environ.get('SSBADM_DEBUG') or True
     TESTING = os.environ.get('SSBADM_TESTING') or False
     CSRF_ENABLED = os.environ.get('SSBADM_CSRF_ENABLED') or True
     PORT = os.environ.get('SSBADM_PORT') or "5000"
