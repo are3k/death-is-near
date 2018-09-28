@@ -104,7 +104,7 @@ def modell(kolonne, endring):
     trainscore, testscore, pred, clf, imp = RF_reg(X_train, X_test, y_train,
                                                    y_test)
     new_data = change_var(data_, kolonne, endring, model=clf)
-    new_data.fartsdempere.astype(int)
+    new_data.fartsgrense.astype(int)
     new_data.trafikk_mengde.astype(int)
     return new_data.iloc[:20,:].to_html(classes="ui striped table",
         border = 0,
