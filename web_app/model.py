@@ -93,7 +93,7 @@ def change_var(df, var, value, model):
     data['forskjell %'] = diff
     #data = data.sort_values('ulykker før endring', ascending=False)
     data = data.sort_values('forskjell %', ascending=True)
-    return data.astype(int)
+    return data
 
 def modell(kolonne, endring):
     datafile = os.path.join(basedir, 'datasett.csv')
@@ -105,7 +105,8 @@ def modell(kolonne, endring):
     return new_data.iloc[:20,:].to_html(classes="ui striped table",
         border = 0,
         justify = 'left',
-        columns = ['trafikk_mengde','fartsgrense','predikerte ulykker','ulykker før endring','forskjell'])
+        columns = ['trafikk_mengde','fartsgrense','predikerte ulykker',
+                   'ulykker før endring','forskjell %'])
 
 
 def reality():
@@ -119,7 +120,7 @@ def reality():
         justify = 'left')
 
 if __name__ == '__main__':
-    res = modell(kolonne='trafikkmengde', endring= -10)
+    res = modell(kolonne='trafikk_mengde', endring= -10)
     print(np.shape(res))
     print(res)
 
