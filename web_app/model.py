@@ -92,7 +92,7 @@ def change_var(df, var, value, model):
     data['forskjell'] = diff
     #data = data.sort_values('ulykker før endring', ascending=False)
     data = data.sort_values('forskjell', ascending=True)
-    return data
+    return data.astype(int)
 
 def modell(kolonne, endring):
     datafile = os.path.join(basedir, 'datasett.csv')
@@ -112,6 +112,7 @@ def reality():
     df = pd.read_csv(datafile,
                    index_col=0)
     df_sort = df.sort_values('trafikk_ulykke', ascending=False)
+    df_sort = df_sort.astype(int)
     return df_sort.iloc[0:20, :].to_html(classes="ui striped table",
         border=0,
         justify = 'left')
