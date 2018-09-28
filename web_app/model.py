@@ -87,9 +87,10 @@ def change_var(df, var, value, model):
     # old = clf.predict(df)
     new = model.predict(data.iloc[:, :-1])
     data['predikerte ulykker'] = new
-    diff = new - df['trafikk_ulykke']
+    #diff = new - df['trafikk_ulykke']
+    diff = ((new - df['trafikk_ulykke']) / df['trafikk_ulykke']) * 100
     data['ulykker før endring'] = df['trafikk_ulykke']
-    data['forskjell'] = diff
+    data['forskjell %'] = diff
     #data = data.sort_values('ulykker før endring', ascending=False)
     data = data.sort_values('forskjell', ascending=True)
     return data.astype(int)
