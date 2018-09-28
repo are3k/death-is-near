@@ -4,56 +4,28 @@
 {% endblock %}
 {% block content %}
 <h1>SSB Hacaton - Vegstatistikk</h1>
-<div class="ui grid">
-	<!--<div class="ui raised segment">
-		<div class="six wide column">
-			<form action="" method="post" novalidate>
-			        {{ form.hidden_tag() }}
-			        <div class="ui labeled input">
-			        	<div class="ui label">
-					        {{ form.change_parameter.label }}
-			    		</div>
-				        {{ form.change_parameter(class="ui compact selection dropdown") }}
-				    </div>
-			    </div>
-				<div class="six wide column">
-			        <div class="ui labeled input">
-			        	<div class="ui label">
-					        {{ form.change.label }}
-			    		</div>
-				        <div class="ui input">
-					        {{ form.change }}
-					    </div>
-					</div>
-			    </div>
-				<div class="four wide column">
-			        {{ form.submit(class="ui button") }}
-			</form>
-	    </div>
-	</div>-->
 	<div class="ui raised padded segment">
-			<form action="" method="post" novalidate>
-			        {{ form.hidden_tag() }}
-			        <div class="ui labeled input">
-			        	<div class="ui label">
-					        {{ form.change_parameter.label }}
-			    		</div>
-				        {{ form.change_parameter(class="ui compact selection dropdown") }}
-				    </div>
-			        <div class="ui labeled input">
-			        	<div class="ui label">
-					        {{ form.change.label }}
-			    		</div>
-				        <div class="ui input">
-					        {{ form.change }}
-					    </div>
-					</div>
-			        {{ form.submit(class="ui button") }}
-			</form>
+		<form action="" method="post" novalidate>
+	        {{ form.hidden_tag() }}
+	        <div class="ui labeled input">
+	        	<div class="ui label">
+			        {{ form.change_parameter.label }}
+	    		</div>
+		        {{ form.change_parameter(class="ui compact selection dropdown") }}
+		    </div>
+	        <div class="ui labeled input">
+	        	<div class="ui label">
+			        {{ form.change.label }}
+	    		</div>
+		        <div class="ui input">
+			        {{ form.change }}
+			    </div>
+			</div>
+	        {{ form.submit(class="ui button") }}
+		</form>
 	</div>
-<div class="sixteen wide column">
+<div class="ui segment">
 	{{ modell|safe }}
-</div>
 </div>
 {% endblock %}
 {% block footer %}

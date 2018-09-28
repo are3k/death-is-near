@@ -101,7 +101,10 @@ def modell(kolonne, endring):
     trainscore, testscore, pred, clf, imp = RF_reg(X_train, X_test, y_train,
                                                    y_test)
     new_data = change_var(data_, kolonne, endring, model=clf)
-    return new_data.iloc[:20,:].to_html(classes="ui striped table", border=0)
+    return new_data.iloc[:20,:].to_html(classes="ui striped table",
+        border = 0,
+        justify = 'left',
+        columns = ['trafikk_mengde','fartsgrense','predikerte ulykker','ulykker før endring','forskjell'])
 
 
 def reality():
@@ -109,7 +112,9 @@ def reality():
     df = pd.read_csv(datafile,
                    index_col=0)
     df_sort = df.sort_values('trafikk_ulykke', ascending=False)
-    return df_sort.iloc[0:20, :].to_html(classes="ui striped table", border=0)
+    return df_sort.iloc[0:20, :].to_html(classes="ui striped table",
+        border=0,
+        justify = 'left')
 
 if __name__ == '__main__':
     res = modell(kolonne='trafikkmengde', endring= -10)
