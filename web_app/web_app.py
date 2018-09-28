@@ -27,6 +27,12 @@ def index():
 def about():
 	return render_template('about.html', about=True)
 
+	
+@web_app.route('/future')
+def future():
+	return render_template('future.html', future=True)
+
+
 
 if __name__ == '__main__':
 	web_app.run(host='0.0.0.0', debug=web_app.config['DEBUG'], port=web_app.config['PORT'])
