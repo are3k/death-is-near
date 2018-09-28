@@ -92,7 +92,7 @@ def change_var(df, var, value, model):
     data['ulykker før endring'] = df['trafikk_ulykke']
     data['forskjell %'] = diff
     #data = data.sort_values('ulykker før endring', ascending=False)
-    data = data.sort_values('forskjell', ascending=True)
+    data = data.sort_values('forskjell %', ascending=True)
     return data.astype(int)
 
 def modell(kolonne, endring):
