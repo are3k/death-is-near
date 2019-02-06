@@ -1,0 +1,42 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+certifi = "*"
+chardet = "*"
+click = "*"
+idna = "*"
+isort = "*"
+itsdangerous = "*"
+kiwisolver = "*"
+lazy-object-proxy = "*"
+matplotlib = "*"
+mysql-connector = "*"
+numpy = "*"
+pandas = "*"
+protobuf = "*"
+pyparsing = "*"
+python-dateutil = "*"
+python-dotenv = "*"
+pytz = "*"
+requests = "*"
+scikit-learn = "*"
+scipy = "*"
+six = "*"
+sklearn = "*"
+typing = "*"
+urllib3 = "*"
+Cycler = "*"
+Flask = "*"
+Flask-WTF = "*"
+Jinja2 = "*"
+MarkupSafe = "*"
+Werkzeug = "*"
+WTForms = "*"
+
+[requires]
+python_version = "3.7"
